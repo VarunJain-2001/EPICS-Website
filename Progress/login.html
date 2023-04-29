@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login </title>
+    <link rel="stylesheet" href="assets/css/login.css">
+</head>
+
+<body>
+    <div class="container">
+        <form id="login" action="home.html">
+            <!-- new action -->
+            <p style="text-align: center; color: white; margin-bottom: 25px;">Welcome back,
+                <br>your
+                <span style="color: yellow;">Vardaan !</span> is waiting for you!!
+            </p>
+            <h3>Login</h3>
+            <div class="inputBox">
+                <span>Username</span>
+                <div class="box">
+                    <div class="icon">
+                        <ion-icon name="person"></ion-icon>
+                    </div>
+                    <input type="text" id="username" required>
+                </div>
+            </div>
+            <div class="inputBox">
+                <span>Password</span>
+                <div class="box">
+                    <div class="icon">
+                        <ion-icon name="lock-closed"></ion-icon>
+                    </div>
+                    <input type="password" id="password" required>
+                    <div id="show-hide">
+                        <ion-icon name="eye" id="aankh"></ion-icon>
+                    </div>
+                </div>
+            </div>
+            <label>
+                <input type="checkbox" onclick="scook()"> Remember Me
+            </label>
+            <div class="inputBox">
+                <div class="box">
+                    <input type="submit" value="log in" onclick="lsub()">
+                    <!-- new event -->
+                </div>
+            </div>
+            <a href="change-password.html" class="forgot">Forgot Password</a>
+            <br><br>
+            <span class="acct">Don't have an account?</span>
+            <a href="index.html" class="noacct">Sign Up</a>
+        </form>
+    </div>
+    <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+    <script>
+        const form = document.getElementById('login');
+        form.addEventListener('submit', login);
+        async function login(event) {
+            event.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const result = await fetch('/api/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    username,
+                    password
+                })
+            }).then((res) => res.json());
+            // console.log(result);
+            if (result.status == 'ok') {
+                // sab badhiya chal raha
+                console.log("Got the Token: ", result.data);
+                localStorage.setItem('token', result.data);
+                // alert('Success');
+                window.open("home.html", "_self");
+            } else {
+                alert(result.error);
+            }
+        }
+
+        const visibility = document.getElementById("show-hide");
+        visibility.addEventListener("click", toggleEye);
+
+        function toggleEye() {
+            const passd = document.getElementById("password");
+            const icon = document.getElementById("aankh");
+            if (passd.type == "password") {
+                passd.type = "text";
+                icon.name = "eye-off";
+            } else {
+                passd.type = "password";
+                icon.name = "eye";
+            }
+        }
+
+        // new event function
+        function lsub() {
+            var naam = document.getElementById("username").value;
+            localStorage.setItem("id", naam);
+            return false;
+        }
+    </script>
+
+    <!-- <script>
+        function scook()
+        {
+            var usrn = document.getElementById("username").value;
+            var pswd = document.getElementById("password").value;
+            document.cookie = "usrnm" + usrn + ";path = http://localhost/static";
+            document.cookie = "passwd" + pswd + ";path = http://localhost/static";
+        }
+        function getcookdata()
+        {
+            var usr = getCookie("usrnm");
+            var pas = getCookie("passwd");
+            document.getElementById("username").value = usr;
+            document.getElementById("password").value = pas;
+        }
+        function getCookie(cname)
+        {
+            var name = cname + "=";
+            var decodedCookie = decodeURIComponent(document.cookie);
+            var ca = decodedCookie.split(';');
+            for(var i = 0; i < ca.length; i++)
+            {
+                var c = ca[i];
+                while(c.charAt(0) == ' ')
+                {
+                    c = c.substring(1);
+                }
+                if(c.indexOf(name) == 0)
+                {
+                    return c.substring(name.length, c.length);
+                }
+            }
+            return "";
+        }
+    </script> -->
+</body>
+
+</html>
