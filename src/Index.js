@@ -2,11 +2,13 @@ const express = require("express");
 const app = express();
 const mongoose = require('mongoose');
 const Register = require("./model/Register");
+const nodeMailer = require('nodemailer');
 const Query = require('./model/Query');
 const ContactUs = require('./model/Contactus');
 const port = process.env.PORT ||2000;
 const cors = require('cors');
 const Contactus = require("./model/Contactus");
+const session = require('express-session')
 app.use(express.json());
 app.use(cors());
 mongoose.connect("mongodb+srv://ayushh:ayush@cluster0.yqrvv.mongodb.net/?retryWrites=true&w=majority",{
@@ -18,24 +20,62 @@ mongoose.connect("mongodb+srv://ayushh:ayush@cluster0.yqrvv.mongodb.net/?retryWr
 })
 .catch((e)=>{
     console.log(e);
-
-})
-
-app.get('/',(req,res)=>{
-    res.send("hi");
 })
 app.post("/register",async(req,res)=>{
+    const email=req.body.email;
+    var otpc = await Math.floor(Math.random()*10000+1);
+    console.log(otpc);
+    const register =  await new Register({
+        username:req.body.username,
+        email:req.body.email,
+        password:req.body.password,
+        otp:otpc,
+    });
+    const insertR = await register.save();
+    res.send(insertR);
+        
+    console.log(insertR);
     
-        const register =  await new Register({
-            username:req.body.username,
-            email:req.body.email,
-            password:req.body.password
-        });
-        const insertR = await register.save();
-        res.send(insertR);
-        console.log(insertR);
     
-})    
+    
+    //opS.save();
+    var transport = await nodeMailer.createTransport({
+        service: 'gmail',
+        auth:{
+            user:'aaayush879@gmail.com',
+            pass:'xyfxwqweouylprdh'
+        }
+    });
+    var mailOption={
+        from:'aaayush879@gmail.com',
+        to:`${email}`,
+        subject:'otp verification from A AAYUSH',
+        text:`${otpc}`
+
+    }
+    transport.sendMail(mailOption, (error, info) => {
+        if (error) {
+            return console.log(error);
+        }
+        console.log(info);
+    });
+    
+    
+    
+})   
+app.post('/optverification',async(req,res)=>{
+    const otpp=req.body.otp;
+    const user = await Register.findOne({otp:otpp});
+    if(Date.now() - timestamp <= 5 * 60 * 1000){
+        if(!user){
+            res.send('cant verify');
+        }
+        else if(user){
+            res.send('user verfied');
+        }
+    }
+    
+}) 
 
 app.post("/signin",async(req,res)=>{
     const email = req.body.email;
@@ -71,13 +111,43 @@ app.post('/query',async(req,res)=>{
     console.log(insertQ);
 })
 app.post('/contact',async(req,res)=>{
+    var email=req.body.email;
+    var name=req.body.name;
     const contact = await new ContactUs({
-        name:req.body.name,
+        name:name,
         address:req.body.address,
         mobile:req.body.mobile,
+        email:email,
         message:req.body.message,
         donation:req.body.donation,
     })
+    var transport = await nodeMailer.createTransport({
+        service: 'gmail',
+        auth:{
+            user:'aaayush879@gmail.com',
+            pass:'xyfxwqweouylprdh'
+        }
+    });
+    var mailOption={
+        from:'aaayush879@gmail.com',
+        to:`${email}`,
+        subject:'Query RECORDED SUCESSFULLY',
+        text:`
+        Thanks ${name} ! 
+
+        We appreciate you for using our services. We have recorded your query
+        and will get back to you very soon.
+
+        Regards
+        Team Vardaan
+        `,
+    }
+    transport.sendMail(mailOption, (error, info) => {
+        if (error) {
+            return console.log(error);
+        }
+        console.log(info);
+    });
     const insertQ = await contact.save();
     res.send(insertQ);
     console.log(insertQ);

@@ -10,6 +10,9 @@ const ContactusSchema = new mongoose.Schema({
         type:Number,
         maxlength:500 
     },
+    email:{
+        type:String,
+    },
     message:{
         type:String
     },
