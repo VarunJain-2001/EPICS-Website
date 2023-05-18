@@ -42,7 +42,7 @@ app.post("/register",async(req,res)=>{
     var transport = await nodeMailer.createTransport({
         service: 'gmail',
         auth:{
-            user:'aaayush879@gmail.com',
+            user:'a.aayush.2020@vitbhopal.ac.in',
             pass:'xyfxwqweouylprdh'
         }
     });
@@ -66,14 +66,14 @@ app.post("/register",async(req,res)=>{
 app.post('/optverification',async(req,res)=>{
     const otpp=req.body.otp;
     const user = await Register.findOne({otp:otpp});
-    if(Date.now() - timestamp <= 5 * 60 * 1000){
-        if(!user){
-            res.send('cant verify');
-        }
-        else if(user){
-            res.send('user verfied');
-        }
+    
+    if(!user){
+         res.send('cant verify');
     }
+    else if(user){
+        res.send('user verfied');
+    }
+    
     
 }) 
 
@@ -83,15 +83,15 @@ app.post("/signin",async(req,res)=>{
     if(user){
         if(user.password==req.body.password){
             console.log("user verified");
-            res.send(`welcome ${user.username} !`);
+            res.send(`welcome ${user.username} !`).status(200);
         }
         else{
-            res.send("wrong password!")
+            res.send("wrong password!").status(401);
         }
     }
     else{
         console.log("User not found");
-        res.send("User not found");
+        res.send("User not found").status(401);
     }
 
     
@@ -119,7 +119,7 @@ app.post('/contact',async(req,res)=>{
         mobile:req.body.mobile,
         email:email,
         message:req.body.message,
-        donation:req.body.donation,
+        
     })
     var transport = await nodeMailer.createTransport({
         service: 'gmail',
